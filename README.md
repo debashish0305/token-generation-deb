@@ -7,6 +7,10 @@
 </dependency>
 
 
+https://app.powerbi.com/groups/{groupId}/reports/{reportId}
+
+
+
 The scopes required for MSAL4j authentication depend on the specific API or service you are integrating with. Here are some commonly used scopes for popular Microsoft services:
 
 Microsoft Graph API:
