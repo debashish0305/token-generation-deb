@@ -12,6 +12,7 @@
 </dependency>
 
 https://app.powerbi.com/groups/{groupId}/reports/{reportId}
+        String[] scopes = new String[]{"https://analysis.windows.net/powerbi/api/.default"};
 
 
 
