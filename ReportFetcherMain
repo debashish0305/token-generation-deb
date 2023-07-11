@@ -1,0 +1,73 @@
+import com.microsoft.aad.msal4j.*;
+
+public class ReportFetcher {
+
+    public static void main(String[] args) {
+        // Azure AD credentials
+        String clientId = "your-client-id";
+        String clientSecret = "your-client-secret";
+        String tenantId = "your-tenant-id";
+
+        // Report URL
+        String reportUrl = "https://app.powerbi.com/groups/{groupId}/reports/{reportId}";
+
+        // Scopes
+        String[] scopes = new String[]{"https://analysis.windows.net/powerbi/api/.default"};
+
+        // Authenticate and obtain an access token
+        IAuthenticationResult result = authenticate(clientId, clientSecret, tenantId, scopes);
+
+        // Fetch the report using the access token
+        String reportData = fetchReport(result.accessToken(), reportUrl);
+
+        // Print the report data
+        System.out.println("Report Data:");
+        System.out.println(reportData);
+    }
+
+    private static IAuthenticationResult authenticate(String clientId, String clientSecret, String tenantId, String[] scopes) {
+        IAuthenticationResult result;
+        try {
+            ConfidentialClientApplication app = ConfidentialClientApplication.builder(clientId, ClientCredentialFactory.createFromSecret(clientSecret))
+                    .authority("https://login.microsoftonline.com/" + tenantId + "/")
+                    .build();
+
+            ClientCredentialParameters parameters = ClientCredentialParameters.builder(scopes).build();
+            CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
+
+            result = future.get();
+        } catch (Exception e) {
+            // Handle authentication error
+            throw new RuntimeException("Failed to acquire access token.", e);
+        }
+
+        if (result != null) {
+            return result;
+        } else {
+            // Handle authentication failure
+            throw new RuntimeException("Failed to acquire access token.");
+        }
+    }
+
+    private static String fetchReport(String accessToken, String reportUrl) {
+        try {
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(reportUrl);
+
+            httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+            httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+
+            HttpResponse response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+
+            if (entity != null) {
+                return EntityUtils.toString(entity);
+            } else {
+                throw new RuntimeException("Empty response received while fetching report.");
+            }
+        } catch (Exception e) {
+            // Handle error while fetching the report
+            throw new RuntimeException("Error fetching report.", e);
+        }
+    }
+}
