@@ -1,0 +1,31 @@
+import com.deb.aad.msal4j.*;
+
+/**
+*MSAL4j and obtain an access token:
+**/
+public class AzureADAuthenticator {
+
+    public String getAccessToken(String clientId, String clientSecret, String tenantId, String scope) {
+        IAuthenticationResult result;
+        try {
+            ConfidentialClientApplication app = ConfidentialClientApplication.builder(clientId, ClientCredentialFactory.createFromSecret(clientSecret))
+                    .authority("https://login.microsoftonline.com/" + tenantId + "/")
+                    .build();
+
+            ClientCredentialParameters parameters = ClientCredentialParameters.builder(Collections.singleton(scope)).build();
+            CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
+
+            result = future.get();
+        } catch (Exception e) {
+            // Handle authentication error
+            throw new RuntimeException("Failed to acquire access token.", e);
+        }
+
+        if (result != null) {
+            return result.accessToken();
+        } else {
+            // Handle authentication failure
+            throw new RuntimeException("Failed to acquire access token.");
+        }
+    }
+}
