@@ -5,7 +5,11 @@
     <artifactId>powerbi-restapi-sdk</artifactId>
     <version>1.3.0</version>
 </dependency>
-
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <version>4.5.13</version>
+</dependency>
 
 https://app.powerbi.com/groups/{groupId}/reports/{reportId}
 
